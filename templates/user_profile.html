@@ -1,0 +1,30 @@
+{% block films_header_text %}
+    <a href="{{ url_for('main_page') }}">Home Page</a>
+    <a href="{{ url_for('films') }}">Films</a>
+    {% if user_session %}
+        <a href="{{ url_for('user_lists', user_id=session['user_id']) }}">Film lists</a>
+    {% endif %}
+{% endblock %}
+
+<form method="POST" action="/users/{{ user.id }}">
+    <label for="username">First name:</label><br>
+    <input type="text" id="username" name="username" value="{{ user.first_name }}"><br>
+    <label for="lname">Last name:</label><br>
+    <input type="text" id="lname" name="lname" value="{{ user.last_name }}"><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password"><br>
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" value="{{ user.email }}"><br>
+    <label for="phone_number">Phone:</label><br>
+    <input type="text" id="phone_number" name="phone_number" value="{{ user.phone_number }}"><br>
+    <label for="birth_date">Birthdate:</label><br>
+    <input type="date" id="birth_date" name="birth_date" value="{{ user.birth_date }}"><br>
+    <label for="photo">Photo:</label><br>
+    <input type="text" id="photo" name="photo" value="{{ user.photo }}"><br>
+    <label for="additional_info">Additional info:</label><br>
+    <input type="text" id="additional_info" name="additional_info" value="{{ user.additional_info }}"><br><br>
+    <input type="submit" name="action" value="Update">
+        <button type="button" onclick="window.location.href='{{ url_for('user_delete', user_id=user.id) }}'">
+            Delete
+        </button>
+</form>

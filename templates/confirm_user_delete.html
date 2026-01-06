@@ -1,0 +1,5 @@
+<h1>Delete user "{{ user.first_name }} {{ user.last_name }}"?</h1>
+<form action="{{ url_for('user_delete', user_id=user.id) }}" method="POST">
+    <button type="submit">Delete</button>
+    <button type="button" onclick="window.location.href='{{ url_for('user_profile', user_id=session['user_id']) }}'">Cancel</button>
+</form>

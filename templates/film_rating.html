@@ -1,0 +1,17 @@
+{% block content %}
+<section class="film-rating">
+    <h2>Film Rating</h2>
+
+    <p>
+        <strong>Average rating:</strong>
+        {{ average_rating | round(2) if average_rating else 'No ratings yet' }}
+    </p>
+
+    <p>
+        <strong>Number of evaluations:</strong>
+        {{ rating_count if rating_count else 0 }}
+    </p>
+
+    <hr>
+</section>
+{% endblock %}

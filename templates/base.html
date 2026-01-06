@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}Movies{% endblock %}</title>
+</head>
+<body>
+<h3>
+    {% block index_header_text %}{% endblock %}
+    {% block films_header_text %}{% endblock %}
+</h3>
+{% include "header.html" %}
+{% block content %}{% endblock %}
+</body>
+</html>

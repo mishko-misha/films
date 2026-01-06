@@ -1,0 +1,5 @@
+<h1>Delete movie "{{ film.name }}"?</h1>
+<form action="{{ url_for('film_delete', film_id=film.id) }}" method="POST">
+    <button type="submit">Delete</button>
+    <button type="button" onclick="window.location.href='{{ url_for('film_detail', film_id=film.id) }}'">Cancel</button>
+</form>

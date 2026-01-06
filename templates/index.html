@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block index_header_text %}
+<a href="{{ url_for('films') }}">Films</a>
+        {% if user_session %}
+                <a href="{{ url_for('user_profile', user_id=session['user_id']) }}"> My Profile: <strong>{{ username }}</strong></a>
+                <a href="{{ url_for('user_lists', user_id=session['user_id']) }}"> Film lists</a>
+        {% else %}
+            <span class="welcome">🎬 Welcome to movie world! <strong>Movie World</strong></span>
+        {% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>Movie Home Page</h1>
+{% include "film_list.html" %}
+{% endblock %}

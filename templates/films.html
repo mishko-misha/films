@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block films_header_text %}
+<a href="{{ url_for('main_page') }}">Home</a>
+    {% if user_session %}
+        <a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ username }}</a>
+        <a href="{{ url_for('user_lists', user_id=session['user_id']) }}">Film lists</a>
+    {% else %}
+        Hey there, do you want sing in or sign up?
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h1>Film Search</h1>
+
+<form method="GET" action="/films">
+    <input type="text" name="name" placeholder="Film Name">
+    <input type="text" name="actor" placeholder="Actor name">
+    <input type="text" name="year" placeholder="Release Year">
+    <input type="text" name="rating" placeholder="Rating">
+
+    <select name="genre" id="genre">
+        <option value="">--Select Genre--</option>
+        {% for genre in genres %}
+        <option value="{{ genre['genre'] }}">{{ genre['genre'] }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="country" id="country">
+        <option value="">--Select Country--</option>
+        {% for country in countries %}
+        <option value="{{ country['country_name'] }}">{{ country['country_name'] }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="submit" value="Search">
+</form>
+
+<h2>Search results:</h2>
+{% include "film_list.html" %}
+{% endblock %}

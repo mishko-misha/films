@@ -1,0 +1,31 @@
+  <h1>Lists for User {{ user_id }}</h1>
+
+  <section id="create-list">
+    <h2>Create new list</h2>
+    <form method="post" action="{{ url_for('user_lists', user_id=user_id) }}">
+      <label for="list_name">List name</label>
+      <input id="list_name" name="list_name" type="text" required />
+      <button type="submit">Create</button>
+    </form>
+  </section>
+
+  <section id="lists">
+    <h2>Existing lists</h2>
+    {% if lists %}
+      <ul>
+        {% for l in lists %}
+          <li>
+            <a href="{{ url_for('user_list_detail', user_id=user_id, list_id=l.id) }}">{{ l.list_name }}</a>
+            <a href="{{ url_for('user_watch_later_list', user_id=user_id, list_id=l.id) }}">{{ l.name }} (open)</a>
+            <form method="post" action="{{ url_for('user_list_detail', user_id=user_id, list_id=l.id) }}" style="display:inline">
+              <button type="submit">Delete</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No lists yet.</p>
+    {% endif %}
+  </section>
+
+  <p><a href="{{ url_for('user_profile', user_id=user_id) }}">Back to profile</a></p>

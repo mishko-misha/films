@@ -1,0 +1,51 @@
+<h2>
+    {% if feedback %}
+        Edit review
+    {% else %}
+        New review
+    {% endif %}
+</h2>
+
+<form method="post"
+      action="{% if feedback %}
+                  {{ url_for('film_feedback', film_id=film_id, feedback_id=feedback.id) }}
+              {% else %}
+                  {{ url_for('film_feedback_new', film_id=film_id) }}
+              {% endif %}">
+
+    <div>
+        <label for="grade">Score (1–10):</label><br>
+        <input type="number"
+               id="grade"
+               name="grade"
+               min="1"
+               max="10"
+               required
+               value="{{ feedback.grade if feedback else '' }}">
+    </div>
+
+    <br>
+
+    <div>
+        <label for="description">Comment:</label><br>
+        <textarea id="description"
+                  name="description"
+                  rows="5"
+                  cols="50"
+                  required>{{ feedback.description if feedback else '' }}</textarea>
+    </div>
+
+    <br>
+
+    <button type="submit">
+        {% if feedback %}
+            Save
+        {% else %}
+            Add review
+        {% endif %}
+    </button>
+
+    <button type="button" onclick="window.location.href='{{ url_for('film_detail', film_id=film_id) }}'">
+        Cancel
+    </button>
+</form>
