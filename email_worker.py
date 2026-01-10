@@ -57,7 +57,7 @@ def build_and_send_daily_emails():
         # So we need to convert our Film objects to dict
         # ORM does not support serialization
         films_data = [{
-            'title': film.title,
+            'title': film.name,
             'description': film.description,
             'added_at': film.added_at.isoformat()
         } for film in new_films]
