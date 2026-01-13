@@ -43,7 +43,7 @@ def setup_periodic_tasks(sender, **kwargs):
 #         server = smtplib.SMTP("smtp.gmail.com", 587)
 #         server.ehlo()
 #         server.starttls()
-#         server.login('polunin1986@gmail.com', 'mxyh bkas gbgw bhkz')
+#         server.login('user@gmail.com', 'xxxx xxxx xxxx xxxx')
 #         server.sendmail(FROM, TO, msg.as_string())
 #         server.close()
 #         print('successfully sent the mail')
@@ -52,7 +52,7 @@ def setup_periodic_tasks(sender, **kwargs):
 
 @app.task
 def send_email(recipient, subject, html_body):
-    FROM = os.environ.get("FROM_EMAIL")
+    FROM = os.environ.get("FROM_EMAIL", "myapp@example.com")
     print("FROM_EMAIL =", FROM)
     TO = recipient if isinstance(recipient, list) else [recipient]
 
@@ -65,7 +65,7 @@ def send_email(recipient, subject, html_body):
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.ehlo()
         server.starttls()
-        server.login('polunin1986@gmail.com', 'mxyh bkas gbgw bhkz')
+        server.login('user@gmail.com', 'xxxx xxxx xxxx xxxx')
         server.sendmail(FROM, TO, msg.as_string())
         server.quit()
     except Exception as e:
