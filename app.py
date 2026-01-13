@@ -1,14 +1,23 @@
+import os
+import secrets
 from functools import wraps
-
+from datetime import datetime, timedelta
 from dateutil import parser
 from flask import Flask, render_template, request, session, redirect, url_for
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select, or_, and_, delete, func, update
 
 import database
+import email_worker
 import models
 
 app = Flask(__name__)
 app.secret_key = 'AS1214jds123%!@#'
+
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = Environment(
+    loader=FileSystemLoader(TEMPLATES_DIR),
+    autoescape=select_autoescape(['html', 'xml']))
 
 
 def login_required(f):
@@ -20,6 +29,7 @@ def login_required(f):
             return redirect(url_for('user_login'))
 
     return wrapper
+
 
 def current_user_data():
     user_session = session.get('logged_in', False)
@@ -43,6 +53,30 @@ def main_page():
     return render_template('index.html', user_session=user_session, username=username, films=film)
 
 
+def create_and_save_confirmation_code(user_id, email):
+    token = secrets.token_urlsafe(32)
+
+    confirmation = models.EmailConfirmation(
+        user_id=user_id,
+        email=email,
+        token=token,
+        expires_at=datetime.utcnow() + timedelta(hours=24)
+    )
+    db_session = database.db_session()
+    db_session.add(confirmation)
+    db_session.commit()
+    return token
+
+
+def build_message_body_for_confirmation(token, first_name):
+    confirm_url = url_for('confirm_email', token=token, _external=True)
+
+    return jinja_env.get_template("confirm_registration.html").render(
+        first_name=first_name,
+        confirm_url=confirm_url
+    )
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def user_register():
     if request.method == 'POST':
@@ -63,9 +97,14 @@ def user_register():
             password=password,
             birth_date=birth_date
         )
+        new_user.active = False
 
         db_session.add(new_user)
         db_session.commit()
+
+        token = create_and_save_confirmation_code(new_user.id, new_user.email)
+        html_body = build_message_body_for_confirmation(token, new_user.first_name)
+        email_worker.send_email.delay(new_user.email, "Confirm your registration", html_body)
 
         return redirect(url_for('user_login'))
     return render_template('register.html')
