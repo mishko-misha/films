@@ -1,18 +1,22 @@
 import os
 import secrets
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, UTC
 from dateutil import parser
 from flask import Flask, render_template, request, session, redirect, url_for
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select, or_, and_, delete, func, update
+from dotenv import load_dotenv
 
 import database
 import email_worker
 import models
 
+load_dotenv()
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 app = Flask(__name__)
-app.secret_key = 'AS1214jds123%!@#'
+app.secret_key = SECRET_KEY
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = Environment(
@@ -53,17 +57,10 @@ def main_page():
     return render_template('index.html', user_session=user_session, username=username, films=film)
 
 
-def create_and_save_confirmation_code(user_id, email):
+def create_and_save_confirmation_code(user):
     token = secrets.token_urlsafe(32)
-
-    confirmation = models.EmailConfirmation(
-        user_id=user_id,
-        email=email,
-        token=token,
-        expires_at=datetime.utcnow() + timedelta(hours=24)
-    )
+    user.token = token
     db_session = database.db_session()
-    db_session.add(confirmation)
     db_session.commit()
     return token
 
@@ -75,6 +72,21 @@ def build_message_body_for_confirmation(token, first_name):
         first_name=first_name,
         confirm_url=confirm_url
     )
+
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):
+    db_session = database.db_session()
+    user = db_session.query(models.User).filter_by(token=token).first()
+
+    if not user:
+        return "Invalid or expired token", 400
+
+    user.active = True
+    user.token = None
+    db_session.commit()
+
+    return render_template("email_confirmed.html", first_name=user.first_name)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -102,11 +114,11 @@ def user_register():
         db_session.add(new_user)
         db_session.commit()
 
-        token = create_and_save_confirmation_code(new_user.id, new_user.email)
+        token = create_and_save_confirmation_code(new_user)
         html_body = build_message_body_for_confirmation(token, new_user.first_name)
         email_worker.send_email.delay(new_user.email, "Confirm your registration", html_body)
 
-        return redirect(url_for('user_login'))
+        return render_template('confirm_check_email.html', first_name=new_user.first_name)
     return render_template('register.html')
 
 
@@ -116,9 +128,12 @@ def user_login():
         login = request.form['login']
         password = request.form['password']
         database.init_db()
+        db_session = database.db_session()
         stmt = select(models.User).where(and_(models.User.login == login, models.User.password == password))
-        user = database.db_session().execute(stmt).scalars().first()
+        user = db_session.execute(stmt).scalars().first()
         if user:
+            user.last_login = datetime.now(UTC)
+            db_session.commit()
             session['logged_in'] = True
             session['user_id'] = user.id
             return redirect(url_for('main_page'))

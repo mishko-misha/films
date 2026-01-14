@@ -3,18 +3,22 @@ from celery.schedules import crontab
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
 import database
 import models
 import os
 import smtplib
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
+load_dotenv()
 
-APP_BASE_URL = os.environ.get(
-    "APP_BASE_URL",
-    "http://localhost:5000"
-)
+APP_BASE_URL = os.environ.get("APP_BASE_URL")
+EMAIL_USER = os.environ["EMAIL_USER"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+FROM_EMAIL = os.environ.get("FROM_EMAIL")
+BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+
+app = Celery('tasks', broker=BROKER_URL)
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = Environment(
@@ -34,8 +38,7 @@ def setup_periodic_tasks(sender, **kwargs):
 
 @app.task
 def send_email(recipient, subject, html_body):
-    FROM = os.environ.get("FROM_EMAIL", "films@mail.com")
-    print("FROM_EMAIL =", FROM)
+    FROM = os.environ.get(FROM_EMAIL, "films@mail.com")
     TO = recipient if isinstance(recipient, list) else [recipient]
 
     msg = MIMEText(html_body, "html", "utf-8")
@@ -47,7 +50,7 @@ def send_email(recipient, subject, html_body):
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.ehlo()
         server.starttls()
-        server.login('user@gmail.com', 'xxxx xxxx xxxx xxxx')
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.sendmail(FROM, TO, msg.as_string())
         server.quit()
     except Exception as e:

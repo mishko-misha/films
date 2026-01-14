@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from database import Base
+from datetime import datetime, UTC
+from sqlalchemy import DateTime
 
 
 class User(Base):
@@ -14,8 +16,10 @@ class User(Base):
     birth_date = Column(Date)
     photo = Column(String(200))
     additional_info = Column(String(500))
-    last_login = Column(Date)
-    created_at = Column(Date)
+    last_login = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.now(UTC))
+    token = Column(String(100), unique=True)
+    active = Column(Boolean, default=False)
 
 class Actor(Base):
     __tablename__ = 'actor'
