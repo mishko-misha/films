@@ -1,12 +1,13 @@
 <h1>Film Digest</h1>
+
 <ul>
     {% for film in new_films %}
-    <li>
-        <strong>{{ film.name }}</strong> —
-        <small>
-            {{ film.year }} year ({{ film.country }})
-            <a href="{{ base_url }}/films/{{ film.id }}">{{ film.name }}</a>
-        </small>
-    </li>
+        <li>
+            <strong>{{ film.name }}</strong> —
+            <small>
+                {{ film.year }} year ({{ film.country }})
+                <a href="{{ base_url }}/films/{{ film.id }}">{{ film.name }}</a>
+            </small>
+        </li>
     {% endfor %}
 </ul>

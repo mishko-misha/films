@@ -1,8 +1,8 @@
 <h2>
     {% if feedback %}
-        Edit review
+        Edit Review
     {% else %}
-        New review
+        New Review
     {% endif %}
 </h2>
 
@@ -41,16 +41,19 @@
         {% if feedback %}
             Save
         {% else %}
-            Add review
+            Add Review
         {% endif %}
     </button>
 
     <button type="button" onclick="window.location.href='{{ url_for('film_detail', film_id=film_id) }}'">
         Cancel
     </button>
+
     {% if feedback %}
-    <button type="button" onclick="window.location.href='{{ url_for('film_feedback_delete',film_id=film_id,feedback_id=feedback.id) }}'">
-        Delete
-    </button>
+        <button type="button"
+                onclick="window.location.href='{{ url_for('film_feedback_delete', film_id=film_id, feedback_id=feedback.id) }}'">
+            Delete
+        </button>
     {% endif %}
+
 </form>

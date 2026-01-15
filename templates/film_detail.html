@@ -1,13 +1,15 @@
-<a href="{{ url_for('main_page') }}"> < Home</a>
-<a href="{{ url_for('films') }}"> Films</a>
+<a href="{{ url_for('main_page') }}">&#60; Home</a>
+<a href="{{ url_for('films') }}">Films</a>
+
 {% block films_header_text %}
-{% if user_session %}
-<a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ username }}</a>
-<a href="{{ url_for('user_lists', user_id=session['user_id']) }}">Film lists</a>
-{% else %}
-Hey there, do you want sing in or sign up?
-{% endif %}
+    {% if user_session %}
+        <a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ username }}</a>
+        <a href="{{ url_for('user_lists', user_id=session['user_id']) }}">Film lists</a>
+    {% else %}
+        Hey there, do you want to sign in or sign up?
+    {% endif %}
 {% endblock %}
+
 <article class="film-card">
     <header>
         <h1>{{ film.name }}</h1>
@@ -33,7 +35,7 @@ Hey there, do you want sing in or sign up?
         <h3>Actors</h3>
         <ul>
             {% for actor in actors %}
-            <li>{{ actor.first_name }} {{ actor.last_name }}</li>
+                <li>{{ actor.first_name }} {{ actor.last_name }}</li>
             {% endfor %}
         </ul>
     </section>
@@ -42,59 +44,65 @@ Hey there, do you want sing in or sign up?
         <h3>Genres</h3>
         <ul>
             {% for genre in genres %}
-            <li>{{ genre.genre }}</li>
+                <li>{{ genre.genre }}</li>
             {% endfor %}
         </ul>
     </section>
+
     <button type="button" onclick="window.location.href='{{ url_for('film_delete', film_id=film.id) }}'">
         Delete Film
     </button>
+
     <hr>
+
     {% include 'film_rating.html' %}
+
     <section class="film-feedbacks">
         <h3>Reviews</h3>
         {% if all_feedbacks %}
-        <ul>
-            {% for feedback in all_feedbacks %}
-            <li>
-                <p>{{ feedback.description }}<strong>{{ feedback.user.username }}:</strong>
-                    {{ feedback.grade }}/10</p>
-
-                {% if 'user_id' in session and feedback.user.id == session['user_id'] %}
-                <button type="button"
-                        onclick="window.location.href='{{ url_for('film_feedback', film_id=film.id, feedback_id=feedback.id) }}'">
-                    Edit review
-                </button>
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
+            <ul>
+                {% for feedback in all_feedbacks %}
+                    <li>
+                        <p>
+                            <strong>{{ feedback.user.username }}:</strong>
+                            {{ feedback.grade }}/10 — {{ feedback.description }}
+                        </p>
+                        {% if 'user_id' in session and feedback.user.id == session['user_id'] %}
+                            <button type="button"
+                                    onclick="window.location.href='{{ url_for('film_feedback', film_id=film.id, feedback_id=feedback.id) }}'">
+                                Edit review
+                            </button>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
         {% else %}
-        <p>No reviews yet.</p>
-        {% if 'user_id' in session %}
-        <button type="button" onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
-            Add review
-        </button>
-        {% endif %}
+            <p>No reviews yet.</p>
+            {% if 'user_id' in session %}
+                <button type="button"
+                        onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
+                    Add review
+                </button>
+            {% endif %}
         {% endif %}
     </section>
+
     {% if 'user_id' in session %}
-    {% if user_feedback %}
-    <button type="button"
-            onclick="window.location.href='{{ url_for('film_feedback', film_id=film.id, feedback_id=user_feedback.id) }}'">
-        Edit review
-    </button>
+        {% if user_feedback %}
+            <button type="button"
+                    onclick="window.location.href='{{ url_for('film_feedback', film_id=film.id, feedback_id=user_feedback.id) }}'">
+                Edit review
+            </button>
+        {% else %}
+            <button type="button" onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
+                Add review
+            </button>
+        {% endif %}
     {% else %}
-    <button type="button" onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
-        Add review
-    </button>
-    {% endif %}
-    {% else %}
-    <p>Login to leave a review</p>
-    <button type="button" class="btn"
-            onclick="window.location.href='{{ url_for('user_login') }}'">
-        Go to Login
-    </button>
+        <p>Login to leave a review</p>
+        <button type="button" class="btn"
+                onclick="window.location.href='{{ url_for('user_login') }}'">
+            Go to Login
+        </button>
     {% endif %}
 </article>
-

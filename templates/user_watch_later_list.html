@@ -1,17 +1,22 @@
-<a href="{{ url_for('user_lists', user_id=user_id) }}">Back to lists</a>
+<a href="{{ url_for('user_lists', user_id=user_id) }}">Back to Lists</a>
 <a href="{{ url_for('main_page') }}">Home Page</a>
 <a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ user.first_name }}</a>
 <a href="{{ url_for('films') }}">Films</a>
 
-{% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
-<ul class="flashes"> {% for category, message in messages %}
-    <li class="{{ category }}">{{ message }}</li>
-    {% endfor %}
-</ul> {% endif %} {% endwith %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
 
 <h1>Watch Later</h1>
-<section>
-    <h2>Add film to list</h2>
+
+<section id="add-film">
+    <h2>Add Film to List</h2>
     <form method="post" action="{{ url_for('user_watch_later_list', user_id=user_id, list_id=list_id) }}">
         <label for="film_name">Search Film</label>
         <input id="film_name" name="film_name" required>
@@ -19,21 +24,21 @@
     </form>
 </section>
 
-<section>
-    <h2>Films list:</h2>
+<section id="films-list">
+    <h2>Films List</h2>
     {% if films %}
-    <ul>
-        {% for film in films %}
-        <li>
-            {{ film.name }}{% if film.year %} ({{ film.year }}){% endif %}
-            <form method="post" style="display:inline"
-                  action="{{ url_for('remove_film_from_list', user_id=user_id, list_id=list_id, film_id=film.id) }}">
-                <button type="submit">Remove</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+        <ul>
+            {% for film in films %}
+                <li>
+                    {{ film.name }}{% if film.year %} ({{ film.year }}){% endif %}
+                    <form method="post" style="display:inline"
+                          action="{{ url_for('remove_film_from_list', user_id=user_id, list_id=list_id, film_id=film.id) }}">
+                        <button type="submit">Remove</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
     {% else %}
-    <p>No films in this list.</p>
+        <p>No films in this list.</p>
     {% endif %}
 </section>

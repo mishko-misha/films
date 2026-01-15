@@ -1,12 +1,15 @@
 {% if films %}
-<ul>
-    {% for film in films %}
-    <li>
-        <strong>{{ film['name'] }}</strong> — <small>{{ film['year'] }} year ({{ film['country'] }}) <a
-            href="/films/{{ film['id'] }}">{{ film['name'] }}</a></small>
-    </li>
-    {% endfor %}
-</ul>
+    <ul>
+        {% for film in films %}
+            <li>
+                <strong>{{ film['name'] }}</strong> —
+                <small>
+                    {{ film['year'] }} year ({{ film['country'] }})
+                    <a href="/films/{{ film['id'] }}">{{ film['name'] }}</a>
+                </small>
+            </li>
+        {% endfor %}
+    </ul>
 {% else %}
-<p>No films yet.</p>
+    <p>No films yet.</p>
 {% endif %}

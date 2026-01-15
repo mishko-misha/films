@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <title>Email Confirmed</title>
-  </head>
-  <body>
+</head>
+<body>
     <h2>Hi {{ first_name }}!</h2>
     <p>Your email has been successfully confirmed.</p>
-    <p>You can now <a href="{{ url_for('user_login') }}">log in</a> to your account.</p>
-  </body>
+    <p>You can now
+        <a href="{{ url_for('user_login') }}">log in</a>
+        to your account.
+    </p>
+</body>
 </html>
