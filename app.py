@@ -1,12 +1,13 @@
 import os
 import secrets
-from functools import wraps
 from datetime import datetime, UTC
+from functools import wraps
+
 from dateutil import parser
-from flask import Flask, render_template, request, session, redirect, url_for
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import select, or_, and_, delete, func, update
-from dotenv import load_dotenv
 
 import database
 import email_worker
@@ -308,6 +309,20 @@ def film_feedback_new(film_id):
     return render_template('film_feedback.html', film_id=film_id, feedback=None)
 
 
+@app.route('/films/<int:film_id>/feedback/<int:feedback_id>/delete', methods=['GET', 'POST'])
+def film_feedback_delete(film_id, feedback_id):
+    database.init_db()
+    db_session = database.db_session()
+    if request.method == 'POST':
+        stmt = delete(models.Feedback).where(models.Feedback.id == feedback_id)
+        db_session.execute(stmt)
+        db_session.commit()
+        return redirect(url_for('film_detail', film_id=film_id))
+    feedback_stmt = select(models.Feedback).where(models.Feedback.id == feedback_id)
+    feedback = db_session.execute(feedback_stmt).scalars().first()
+    return render_template('confirm_feedback_delete.html', feedback=feedback, film_id=film_id)
+
+
 @app.route('/users/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def user_profile(user_id):
@@ -373,6 +388,9 @@ def user_delete(user_id):
 def user_lists(user_id):
     database.init_db()
     db_session = database.db_session()
+    user = db_session.execute(
+        select(models.User).where(models.User.id == user_id)
+    ).scalars().first()
     if request.method == 'POST':
         list_name = request.form['list_name']
         new_list = models.List(
@@ -385,7 +403,7 @@ def user_lists(user_id):
     else:
         stmt = select(models.List).where(models.List.user_id == user_id)
         lists = db_session.execute(stmt).scalars().all()
-        return render_template('user_lists.html', user_id=user_id, lists=lists)
+        return render_template('user_lists.html', user_id=user.id, user=user, lists=lists)
 
 
 @app.route('/users/<user_id>/lists/<list_id>/delete',
@@ -409,19 +427,39 @@ def user_list_detail(user_id, list_id):
 def user_watch_later_list(user_id, list_id):
     database.init_db()
     db_session = database.db_session()
+    user = db_session.execute(
+        select(models.User).where(models.User.id == user_id)
+    ).scalars().first()
+
     if request.method == 'POST':
-        film_id = request.form['film_id']
-        new_film_in_list = models.FilmList(
-            list_id=list_id,
-            film_id=film_id
-        )
-        db_session.add(new_film_in_list)
-        db_session.commit()
-        return redirect(url_for('user_watch_later_list', user_id=user_id, list_id=list_id))
+        film_name = request.form['film_name']
+
+        film = db_session.execute(
+            select(models.Film).where(models.Film.name.ilike(f'%{film_name}%'))
+        ).scalars().first()
+
+        if not film:
+            return redirect(url_for('user_watch_later_list', user_id=user.id, list_id=list_id))
+
+        existing_film_in_list = db_session.execute(
+            select(models.FilmList).where(models.FilmList.list_id == list_id, models.FilmList.film_id == film.id)
+        ).scalars().first()
+
+        if existing_film_in_list:
+            flash('Film already in the list.')
+        else:
+            new_film_in_list = models.FilmList(
+                list_id=list_id,
+                film_id=film.id
+            )
+            db_session.add(new_film_in_list)
+            db_session.commit()
+        return redirect(url_for('user_watch_later_list', user_id=user.id, list_id=list_id))
     stmt = select(models.Film).join(models.FilmList, models.Film.id == models.FilmList.film_id).where(
         models.FilmList.list_id == list_id)
     films_result = db_session.execute(stmt).scalars().all()
-    return render_template('user_watch_later_list.html', user_id=user_id, list_id=list_id, films=films_result)
+    return render_template('user_watch_later_list.html', user=user, user_id=user_id, list_id=list_id,
+                           films=films_result)
 
 
 @app.route('/users/<user_id>/lists/<list_id>/<film_id>/delete', methods=['GET', 'POST'])

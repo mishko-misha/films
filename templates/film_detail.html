@@ -1,11 +1,12 @@
 <a href="{{ url_for('main_page') }}"> < Home</a>
 <a href="{{ url_for('films') }}"> Films</a>
 {% block films_header_text %}
-    {% if user_session %}
-        <a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ username }}</a>
-    {% else %}
-        Hey there, do you want sing in or sign up?
-    {% endif %}
+{% if user_session %}
+<a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ username }}</a>
+<a href="{{ url_for('user_lists', user_id=session['user_id']) }}">Film lists</a>
+{% else %}
+Hey there, do you want sing in or sign up?
+{% endif %}
 {% endblock %}
 <article class="film-card">
     <header>
@@ -46,7 +47,7 @@
         </ul>
     </section>
     <button type="button" onclick="window.location.href='{{ url_for('film_delete', film_id=film.id) }}'">
-        Delete film
+        Delete Film
     </button>
     <hr>
     {% include 'film_rating.html' %}
@@ -63,9 +64,6 @@
                 <button type="button"
                         onclick="window.location.href='{{ url_for('film_feedback', film_id=film.id, feedback_id=feedback.id) }}'">
                     Edit review
-                </button>
-                <button type="button" onclick="window.location.href='{{ url_for('film_delete', film_id=film.id) }}'">
-                    Delete
                 </button>
                 {% endif %}
             </li>
@@ -93,6 +91,10 @@
     {% endif %}
     {% else %}
     <p>Login to leave a review</p>
+    <button type="button" class="btn"
+            onclick="window.location.href='{{ url_for('user_login') }}'">
+        Go to Login
+    </button>
     {% endif %}
 </article>
 

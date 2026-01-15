@@ -48,4 +48,9 @@
     <button type="button" onclick="window.location.href='{{ url_for('film_detail', film_id=film_id) }}'">
         Cancel
     </button>
+    {% if feedback %}
+    <button type="button" onclick="window.location.href='{{ url_for('film_feedback_delete',film_id=film_id,feedback_id=feedback.id) }}'">
+        Delete
+    </button>
+    {% endif %}
 </form>

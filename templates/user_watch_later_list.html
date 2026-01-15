@@ -1,32 +1,39 @@
-  <h1>Watch Later List</h1>
-  <p>User: {{ user_id }} — List: {{ list_id }}</p>
+<a href="{{ url_for('user_lists', user_id=user_id) }}">Back to lists</a>
+<a href="{{ url_for('main_page') }}">Home Page</a>
+<a href="{{ url_for('user_profile', user_id=session['user_id']) }}">Profile - {{ user.first_name }}</a>
+<a href="{{ url_for('films') }}">Films</a>
 
-  <section>
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+<ul class="flashes"> {% for category, message in messages %}
+    <li class="{{ category }}">{{ message }}</li>
+    {% endfor %}
+</ul> {% endif %} {% endwith %}
+
+<h1>Watch Later</h1>
+<section>
     <h2>Add film to list</h2>
     <form method="post" action="{{ url_for('user_watch_later_list', user_id=user_id, list_id=list_id) }}">
-      <label for="film_id">Film ID</label>
-      <input id="film_id" name="film_id" required>
-      <button type="submit">Add</button>
+        <label for="film_name">Search Film</label>
+        <input id="film_name" name="film_name" required>
+        <button type="submit">Add</button>
     </form>
-  </section>
+</section>
 
-  <section>
-    <h2>Films in this list</h2>
+<section>
+    <h2>Films list:</h2>
     {% if films %}
-      <ul>
+    <ul>
         {% for film in films %}
-          <li>
+        <li>
             {{ film.name }}{% if film.year %} ({{ film.year }}){% endif %}
             <form method="post" style="display:inline"
                   action="{{ url_for('remove_film_from_list', user_id=user_id, list_id=list_id, film_id=film.id) }}">
-              <button type="submit">Remove</button>
+                <button type="submit">Remove</button>
             </form>
-          </li>
+        </li>
         {% endfor %}
-      </ul>
+    </ul>
     {% else %}
-      <p>No films in this list.</p>
+    <p>No films in this list.</p>
     {% endif %}
-  </section>
-
-  <p><a href="{{ url_for('user_lists', user_id=user_id) }}">Back to lists</a></p>
+</section>
