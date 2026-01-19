@@ -1,0 +1,64 @@
+<form method="POST" action="{{ url_for('film_create') }}">
+    <label for="name">Film Name:</label><br>
+    <input type="text" id="name" name="name" required><br>
+
+    <label for="year">Release Year:</label><br>
+    <input type="number" id="year" name="year" required><br>
+
+    <label for="poster_url">Poster URL:</label><br>
+    <input type="text" id="poster_url" name="poster_url"><br>
+
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="description"></textarea><br><br>
+
+    <label for="rating">Rating:</label><br>
+    <input type="number" step="0.1" id="rating" name="rating"><br><br>
+
+    <label for="duration">Duration (minutes):</label><br>
+    <input type="number" id="duration" name="duration"><br><br>
+
+    <label for="country">Country:</label><br>
+    <select id="country" name="country" required>
+        {% for country in countries %}
+            <option value="{{ country.country_name }}">{{ country.country_name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="genres">Genres:</label><br>
+    <select id="genres" name="genres" multiple size="5">
+        {% for genre in genres %}
+            <option value="{{ genre.genre }}">{{ genre.genre }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <h3>Actors</h3>
+    <div id="actors-container">
+        <div class="actor-item">
+            <label>First Name:</label><br>
+            <input type="text" name="actor_first_name[]"><br>
+            <label>Last Name:</label><br>
+            <input type="text" name="actor_last_name[]"><br>
+            <label>Birth Date:</label><br>
+            <input type="date" name="actor_birth_date[]"><br>
+            <label>Death Date:</label><br>
+            <input type="date" name="actor_death_date[]"><br>
+            <label>Description:</label><br>
+            <textarea name="actor_description[]"></textarea><br><hr>
+        </div>
+    </div>
+
+    <button type="button" onclick="addActor()">Add Another Actor</button><br><br>
+
+    <input type="submit" value="Submit">
+    <button type="button" onclick="window.location.href='{{ url_for('main_page') }}'">Go to Home Page</button>
+</form>
+
+<script>
+function addActor() {
+    const container = document.getElementById('actors-container');
+    const newActor = document.querySelector('.actor-item').cloneNode(true);
+
+    newActor.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    container.appendChild(newActor);
+}
+</script>

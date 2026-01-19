@@ -184,6 +184,67 @@ def films():
                            user_session=user_session, username=username)
 
 
+@app.route('/films/new', methods=['GET', 'POST'])
+@login_required
+def film_create():
+    database.init_db()
+    db_session = database.db_session()
+
+    genres = db_session.execute(select(models.Genre)).scalars().all()
+    countries_list = db_session.execute(select(models.Country)).scalars().all()
+
+    if request.method == 'POST':
+        name = request.form['name']
+        year = int(request.form['year'])
+        poster = request.form['poster_url']
+        description = request.form['description']
+        rating = float(request.form['rating'])
+        duration = int(request.form['duration'])
+        country_name = request.form['country']
+
+        new_film = models.Film(
+            name=name,
+            year=year,
+            poster=poster,
+            description=description,
+            country=country_name,
+            rating=rating,
+            duration=duration,
+            added_at=datetime.now(UTC)
+        )
+        db_session.add(new_film)
+        db_session.flush()
+
+        selected_genres = request.form.getlist('genres')
+        for genre_id in selected_genres:
+            db_session.add(models.GenreFilm(
+                film_id=new_film.id,
+                genre_id=genre_id
+            ))
+
+        actors_text = request.form.get('actors', '').strip()
+        if actors_text:
+            for line in actors_text.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split(maxsplit=1)
+                first_name = parts[0]
+                last_name = parts[1] if len(parts) > 1 else ''
+                actor = models.Actor(first_name=first_name, last_name=last_name)
+                db_session.add(actor)
+                db_session.flush()  # чтобы получить actor.id
+                db_session.add(models.ActorFilm(
+                    film_id=new_film.id,
+                    actor_id=actor.id
+                ))
+
+        db_session.commit()
+        return redirect(url_for('films'))
+
+    return render_template('film_create.html', genres=genres, countries=countries_list)
+
+
 @app.route('/films/<int:film_id>', methods=['GET'])
 def film_detail(film_id):
     user_session, username = current_user_data()
@@ -230,8 +291,9 @@ def film_delete(film_id):
     database.init_db()
     db_session = database.db_session()
     if request.method == 'POST':
-        stmt = delete(models.Film).where(models.Film.id == film_id)
-        db_session.execute(stmt)
+        db_session.query(models.GenreFilm).filter(models.GenreFilm.film_id == film_id).delete()
+        db_session.query(models.ActorFilm).filter(models.ActorFilm.film_id == film_id).delete()
+        db_session.query(models.Film).filter(models.Film.id == film_id).delete()
         db_session.commit()
         return redirect(url_for('films'))
     film_stmt = select(models.Film).where(models.Film.id == film_id)

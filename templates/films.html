@@ -40,4 +40,6 @@
 
     <h2>Search results:</h2>
     {% include "film_list.html" %}
+<h2>Let's go to add new film! Push the button:</h2>
+<button type="button" onclick="window.location.href='{{ url_for('film_create') }}'">Add film</button>
 {% endblock %}

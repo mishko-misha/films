@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, Float
 from database import Base
 from datetime import datetime, UTC
 from sqlalchemy import DateTime
@@ -59,10 +59,10 @@ class Film(Base):
     year = Column(Integer, nullable=False)
     poster = Column(String(200), nullable=False)
     description = Column(String(1000), nullable=False)
-    rating = Column(Integer)
+    rating = Column(Float)
     duration = Column(Integer, nullable=False)
     country = Column(String(100), nullable=False)
-    added_at = Column(Integer, nullable=False)
+    added_at = Column(DateTime, default=datetime.now(UTC))
 
 
 class FilmList(Base):

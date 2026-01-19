@@ -1,4 +1,4 @@
-<a href="{{ url_for('main_page') }}">&#60; Home</a>
+<a href="{{ url_for('main_page') }}">Home</a>
 <a href="{{ url_for('films') }}">Films</a>
 
 {% block films_header_text %}
@@ -78,12 +78,6 @@
             </ul>
         {% else %}
             <p>No reviews yet.</p>
-            {% if 'user_id' in session %}
-                <button type="button"
-                        onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
-                    Add review
-                </button>
-            {% endif %}
         {% endif %}
     </section>
 
@@ -94,15 +88,17 @@
                 Edit review
             </button>
         {% else %}
-            <button type="button" onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
+            <button type="button"
+                    onclick="window.location.href='{{ url_for('film_feedback_new', film_id=film.id) }}'">
                 Add review
             </button>
         {% endif %}
     {% else %}
         <p>Login to leave a review</p>
-        <button type="button" class="btn"
+        <button type="button"
                 onclick="window.location.href='{{ url_for('user_login') }}'">
             Go to Login
         </button>
     {% endif %}
+
 </article>
